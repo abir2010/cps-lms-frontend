@@ -1,10 +1,10 @@
 "use client";
 
-import { logout } from "../../store/authSlice";
-import { useAppDispatch, useAppSelector } from "../../store/store";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { logout } from "../../store/authSlice";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 
 import { Button } from "@/components/ui/button";
 
