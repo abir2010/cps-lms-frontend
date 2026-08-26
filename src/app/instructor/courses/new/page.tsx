@@ -61,8 +61,10 @@ export default function CreateCoursePage() {
         throw new Error(errorData.error?.message || "Failed to create course");
       }
 
-      // Redirect back to the instructor course list upon success
-      router.push("/instructor/courses");
+      const { data: created } = await res.json();
+
+      // Head straight into the new course so lessons can be added right away.
+      router.push(`/instructor/courses/${created.documentId}/edit`);
     } catch (error: any) {
       console.error(error);
       setError("root", { message: error.message || "Something went wrong." });
