@@ -3,7 +3,7 @@
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import { Provider } from "react-redux";
-import { setCredentials } from "./authSlice";
+import { logout, setCredentials } from "./authSlice";
 import { store, useAppDispatch } from "./store";
 
 // Create a silent initializer to check for cookies on reload
@@ -43,6 +43,11 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error("Failed to restore session on reload:", error);
+
+        // Automatically wipe bad credentials if the token is rejected
+        Cookies.remove("jwt");
+        Cookies.remove("role");
+        dispatch(logout());
       }
     };
 

@@ -20,7 +20,6 @@ export default function Navbar() {
     router.push("/login");
   };
 
-  // Don't render the secure nav if the user isn't logged in
   if (!isAuthenticated || !user) return null;
 
   return (

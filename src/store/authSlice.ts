@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
   id: number;
@@ -20,12 +20,12 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ user: User; jwt: string }>
+      action: PayloadAction<{ user: User; jwt: string }>,
     ) => {
       state.user = action.payload.user;
       state.jwt = action.payload.jwt;

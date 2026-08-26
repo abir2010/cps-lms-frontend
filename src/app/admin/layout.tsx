@@ -29,6 +29,7 @@ export default function AdminLayout({
     { name: "Dashboard", href: "/admin" },
     { name: "Manage Users", href: "/admin/users" },
     { name: "All Courses", href: "/admin/courses" },
+    { name: 'Site Configuration', href: '/admin/settings' },
   ];
 
   return (
