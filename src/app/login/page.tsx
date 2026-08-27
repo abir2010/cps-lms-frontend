@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { loginUser } from "../../lib/api/auth";
+import { getHomeForRole } from "../../lib/roleRoutes";
 import { setCredentials } from "../../store/authSlice";
 import { useAppDispatch } from "../../store/store";
 
@@ -53,9 +54,7 @@ export default function LoginPage() {
       Cookies.set("jwt", data.jwt, { expires: 7 });
       Cookies.set("role", data.user.role, { expires: 7 });
 
-      if (data.user.role === "Admin") router.push("/admin");
-      else if (data.user.role === "Instructor") router.push("/instructor");
-      else router.push("/dashboard");
+      router.push(getHomeForRole(data.user.role));
     } catch (error) {
       console.error(error);
       // Root error on the form object

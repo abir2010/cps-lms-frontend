@@ -17,88 +17,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
-import { useAppSelector } from "../../../store/store";
-
-interface Role {
-  id: number;
-  name: string;
-}
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: Role | null;
-}
+import {
+  useGetRolesQuery,
+  useGetUsersQuery,
+  useUpdateUserRoleMutation,
+} from "../../../store/api/usersApi";
 
 export default function AdminUsersPage() {
-  const jwt = useAppSelector((state) => state.auth.jwt);
-  const [users, setUsers] = useState<User[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: users, isLoading } = useGetUsersQuery();
+  const { data: roles } = useGetRolesQuery();
+  const [updateUserRole] = useUpdateUserRoleMutation();
 
-  const STRAPI_URL =
-    process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
-
-  // 1. Fetch Users and Available Roles
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!jwt) return;
-      try {
-        const headers = { Authorization: `Bearer ${jwt}` };
-
-        const [usersRes, rolesRes] = await Promise.all([
-          fetch(`${STRAPI_URL}/api/users?populate=role`, { headers }),
-          fetch(`${STRAPI_URL}/api/users-permissions/roles`, { headers }),
-        ]);
-
-        const usersData = await usersRes.json();
-        const rolesData = await rolesRes.json();
-
-        setUsers(usersData);
-        setRoles(rolesData.roles || []);
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [jwt, STRAPI_URL]);
-
-  // 2. Handle Role Upgrades/Downgrades
   const handleRoleChange = async (userId: number, newRoleId: string) => {
     try {
-      const response = await fetch(`${STRAPI_URL}/api/users/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
-        },
-        body: JSON.stringify({
-          role: newRoleId, // Strapi requires the role ID to update the relation
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to update user role");
-
-      const updatedUser = await response.json();
-
-      // Instantly update the UI without reloading the page
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === userId ? { ...user, role: updatedUser.role } : user,
-        ),
-      );
+      await updateUserRole({ userId, roleId: newRoleId }).unwrap();
     } catch (error) {
       console.error("Role update failed:", error);
       alert("Failed to update role. Please check backend permissions.");
     }
   };
 
-  // 3. Visual formatting for different permission levels
   const getRoleBadgeVariant = (roleName: string) => {
     switch (roleName) {
       case "Admin":
@@ -147,7 +85,7 @@ export default function AdminUsersPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  users.map((user) => (
+                  users?.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
                         {user.username}
@@ -173,7 +111,7 @@ export default function AdminUsersPage() {
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                           <SelectContent>
-                            {roles.map((role) => (
+                            {roles?.map((role) => (
                               <SelectItem
                                 key={role.id}
                                 value={role.id.toString()}

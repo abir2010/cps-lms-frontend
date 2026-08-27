@@ -11,48 +11,10 @@ import {
 import { Calendar, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-interface BlogPost {
-  id: number;
-  documentId: string;
-  title: string;
-  body: string;
-  cover_image_url?: string;
-  createdAt: string;
-  author?: {
-    username: string;
-  };
-}
+import { useGetPublishedBlogsQuery } from "../../store/api/blogApi";
 
 export default function PublicBlogList() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const STRAPI_URL =
-    process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        // Explicitly filter for published posts and populate the author
-        const res = await fetch(
-          `${STRAPI_URL}/api/blogs?filters[status_type][$eq]=published&populate=author`,
-        );
-        const data = await res.json();
-
-        if (res.ok) {
-          setPosts(data.data || []);
-        }
-      } catch (error) {
-        console.error("Failed to fetch blogs:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchBlogs();
-  }, [STRAPI_URL]);
+  const { data: posts, isLoading } = useGetPublishedBlogsQuery();
 
   if (isLoading) {
     return (
@@ -74,7 +36,7 @@ export default function PublicBlogList() {
         </p>
       </header>
 
-      {posts.length === 0 ? (
+      {!posts || posts.length === 0 ? (
         <Card className="bg-slate-50 border-dashed">
           <CardContent className="flex flex-col items-center justify-center h-40 text-slate-500">
             <p>No published posts available right now. Check back later!</p>
@@ -86,11 +48,13 @@ export default function PublicBlogList() {
             <Link key={post.documentId} href={`/blog/${post.documentId}`}>
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer overflow-hidden flex flex-col">
                 {post.cover_image_url && (
-                  <div className="h-48 w-full bg-slate-100 overflow-hidden shrink-0">
+                  <div className="h-48 w-full bg-slate-100 overflow-hidden shrink-0 relative">
                     <Image
                       src={post.cover_image_url}
                       alt={post.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      unoptimized
                     />
                   </div>
                 )}

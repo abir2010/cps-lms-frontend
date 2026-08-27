@@ -11,125 +11,48 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Compass } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useGetCoursesQuery } from "../../store/api/coursesApi";
+import {
+  useGetMyEnrollmentsQuery,
+  useUpdateEnrollmentProgressMutation,
+  type Enrollment,
+} from "../../store/api/enrollmentsApi";
 import { useAppSelector } from "../../store/store";
 
-interface Course {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  instructor?: { username: string };
-  lessons?: any[]; // Added to calculate total lessons
-}
-
-interface Enrollment {
-  id: number;
-  documentId: string;
-  progress_percentage: number;
-  course: Course;
-  completed_lessons?: any[]; // Added to calculate completed lessons
+function computeProgress(enrollment: Enrollment): number {
+  const total = enrollment.course?.lessons?.length || 0;
+  const done = enrollment.completed_lessons?.length || 0;
+  if (total === 0) return 0;
+  return Math.min(100, Math.round((done / total) * 100));
 }
 
 export default function StudentDashboard() {
-  const { jwt, user } = useAppSelector((state) => state.auth);
-
-  const [catalog, setCatalog] = useState<Course[]>([]);
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const STRAPI_URL =
-    process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
+  const user = useAppSelector((state) => state.auth.user);
+  const { data: enrollments, isLoading: enrollmentsLoading } =
+    useGetMyEnrollmentsQuery();
+  const { data: catalog, isLoading: catalogLoading } = useGetCoursesQuery();
+  const [updateProgress] = useUpdateEnrollmentProgressMutation();
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      // Wait for Redux to load the auth state
-      if (!jwt || !user) return;
-
-      // If the user is loaded but missing the documentId, stop loading
-      if (!user.documentId) {
-        console.error(
-          "Missing documentId in Redux state. Please log out and back in.",
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // Fetch user's enrollments with deep population for both course lessons and completed lessons
-        const enrollmentsRes = await fetch(
-          `${STRAPI_URL}/api/enrollments?filters[student][documentId][$eq]=${user.documentId}&populate[0]=course.lessons&populate[1]=completed_lessons`,
-          { headers: { Authorization: `Bearer ${jwt}` } },
-        );
-
-        // Fetch the platform's available course catalog
-        const catalogRes = await fetch(
-          `${STRAPI_URL}/api/courses?populate=instructor`,
-          { headers: { Authorization: `Bearer ${jwt}` } },
-        );
-
-        const enrollmentsData = await enrollmentsRes.json();
-        const catalogData = await catalogRes.json();
-
-        const fetchedEnrollments: Enrollment[] = enrollmentsData.data || [];
-        const fetchedCatalog: Course[] = catalogData.data || [];
-
-        const enrolledCourseIds = new Set<string>();
-
-        // 3. Process enrollments: recalculate progress and collect enrolled course IDs
-        const processedEnrollments = fetchedEnrollments.map((enrollment) => {
-          if (enrollment.course?.documentId) {
-            enrolledCourseIds.add(enrollment.course.documentId);
-          }
-
-          // --- SELF-HEALING PROGRESS CALCULATION ---
-          const totalLessons = enrollment.course?.lessons?.length || 0;
-          const completedCount = enrollment.completed_lessons?.length || 0;
-          let trueProgress = 0;
-
-          if (totalLessons > 0) {
-            trueProgress = Math.round((completedCount / totalLessons) * 100);
-          }
-          if (trueProgress > 100) trueProgress = 100;
-
-          // If the database is stale (e.g. course size changed), fix it silently
-          if (trueProgress !== enrollment.progress_percentage) {
-            enrollment.progress_percentage = trueProgress; // Update local UI state instantly
-
-            // Fire a background sync to patch Strapi
-            fetch(`${STRAPI_URL}/api/enrollments/${enrollment.documentId}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${jwt}`,
-              },
-              body: JSON.stringify({
-                data: { progress_percentage: trueProgress },
-              }),
-            }).catch((err) =>
-              console.error("Failed to background sync progress", err),
-            );
-          }
-
-          return enrollment;
+    enrollments?.forEach((enrollment) => {
+      const trueProgress = computeProgress(enrollment);
+      if (trueProgress !== enrollment.progress_percentage) {
+        updateProgress({
+          documentId: enrollment.documentId,
+          progress_percentage: trueProgress,
         });
-
-        // 4. Filter the catalog to hide courses the user is already enrolled in
-        const availableCourses = fetchedCatalog.filter(
-          (course) => !enrolledCourseIds.has(course.documentId),
-        );
-
-        setEnrollments(processedEnrollments);
-        setCatalog(availableCourses);
-      } catch (error) {
-        console.log("Failed to fetch dashboard data:", error);
-      } finally {
-        setIsLoading(false);
       }
-    };
+    });
+  }, [enrollments, updateProgress]);
 
-    fetchDashboardData();
-  }, [jwt, user, STRAPI_URL]);
+  const isLoading = enrollmentsLoading || catalogLoading;
+  const enrolledCourseIds = new Set(
+    (enrollments ?? []).map((e) => e.course?.documentId),
+  );
+  const availableCourses = (catalog ?? []).filter(
+    (course) => !enrolledCourseIds.has(course.documentId),
+  );
 
   if (isLoading) {
     return (
@@ -155,7 +78,7 @@ export default function StudentDashboard() {
           <h2 className="text-2xl font-semibold">Your Learning Path</h2>
         </div>
 
-        {enrollments.length === 0 ? (
+        {!enrollments || enrollments.length === 0 ? (
           <Card className="bg-slate-50 border-dashed">
             <CardContent className="flex flex-col items-center justify-center h-32 text-slate-500">
               <p>You are not enrolled in any courses yet.</p>
@@ -163,35 +86,35 @@ export default function StudentDashboard() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {enrollments.map((enrollment) => (
-              <Card key={enrollment.id} className="flex flex-col">
-                <CardHeader>
-                  <CardTitle className="line-clamp-1">
-                    {enrollment.course?.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1 space-y-4">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span>Progress</span>
-                      <span>{enrollment.progress_percentage || 0}%</span>
+            {enrollments.map((enrollment) => {
+              const progress = computeProgress(enrollment);
+              return (
+                <Card key={enrollment.id} className="flex flex-col">
+                  <CardHeader>
+                    <CardTitle className="line-clamp-1">
+                      {enrollment.course?.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 space-y-4">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm font-medium">
+                        <span>Progress</span>
+                        <span>{progress}%</span>
+                      </div>
+                      <Progress value={progress} className="w-full" />
                     </div>
-                    <Progress
-                      value={enrollment.progress_percentage || 0}
+                  </CardContent>
+                  <CardFooter>
+                    <Link
+                      href={`/courses/${enrollment.course?.documentId}/learn`}
                       className="w-full"
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Link
-                    href={`/courses/${enrollment.course?.documentId}/learn`}
-                    className="w-full"
-                  >
-                    <Button className="w-full">Continue Learning</Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
+                    >
+                      <Button className="w-full">Continue Learning</Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              );
+            })}
           </div>
         )}
       </section>
@@ -203,7 +126,7 @@ export default function StudentDashboard() {
           <h2 className="text-2xl font-semibold">Available Courses</h2>
         </div>
 
-        {catalog.length === 0 ? (
+        {availableCourses.length === 0 ? (
           <Card className="bg-slate-50 border-dashed">
             <CardContent className="flex flex-col items-center justify-center h-32 text-slate-500">
               <p>You have enrolled in all available courses!</p>
@@ -211,7 +134,7 @@ export default function StudentDashboard() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {catalog.map((course) => (
+            {availableCourses.map((course) => (
               <Card key={course.id} className="flex flex-col">
                 <CardHeader>
                   <CardTitle className="line-clamp-1">{course.title}</CardTitle>

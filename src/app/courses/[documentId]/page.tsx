@@ -11,91 +11,29 @@ import {
 } from "@/components/ui/card";
 import { BookOpen, Calendar, User } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useAppSelector } from "../../../store/store";
-
-interface Course {
-  documentId: string;
-  title: string;
-  description: string;
-  publishedAt: string;
-  instructor?: {
-    username: string;
-  };
-}
+import { useState } from "react";
+import { useGetCourseQuery } from "../../../store/api/coursesApi";
+import { useEnrollMutation } from "../../../store/api/enrollmentsApi";
 
 export default function CourseDetailsPage() {
-  const params = useParams();
-  const documentId = params.documentId as string;
+  const params = useParams<{ documentId: string }>();
   const router = useRouter();
 
-  const { jwt, user } = useAppSelector((state) => state.auth);
-  const [course, setCourse] = useState<Course | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEnrolling, setIsEnrolling] = useState(false);
+  const { data: course, isLoading } = useGetCourseQuery(params.documentId);
+  const [enroll, { isLoading: isEnrolling }] = useEnrollMutation();
+  const [enrollError, setEnrollError] = useState<string | null>(null);
 
-  const STRAPI_URL =
-    process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
-
-  // Fetch course details
-  useEffect(() => {
-    const fetchCourse = async () => {
-      if (!jwt || !documentId) return;
-      try {
-        const res = await fetch(
-          `${STRAPI_URL}/api/courses/${documentId}?populate=instructor`,
-          {
-            headers: { Authorization: `Bearer ${jwt}` },
-          },
-        );
-        const data = await res.json();
-
-        if (res.ok) {
-          setCourse(data.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch course details:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCourse();
-  }, [jwt, documentId, STRAPI_URL]);
-
-  // Handle Enrollment
   const handleEnrollment = async () => {
-    if (!jwt || !user?.documentId || !course) return;
-
-    setIsEnrolling(true);
+    if (!course) return;
+    setEnrollError(null);
     try {
-      const res = await fetch(`${STRAPI_URL}/api/enrollments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
-        },
-        body: JSON.stringify({
-          data: {
-            progress_percentage: 0,
-            student: user.documentId, // Links to the logged-in student
-            course: course.documentId, // Links to the current course
-          },
-        }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error?.message || "Failed to enroll");
-      }
-
-      // Redirect back to the dashboard so they can see their new active course
+      await enroll(course.documentId).unwrap();
       router.push("/dashboard");
-    } catch (error) {
-      console.error(error);
-      alert("Could not complete enrollment. Please check your permissions.");
-    } finally {
-      setIsEnrolling(false);
+    } catch (err: any) {
+      setEnrollError(
+        err?.data?.error?.message ??
+          "Could not complete enrollment. Please check your permissions.",
+      );
     }
   };
 
@@ -130,12 +68,14 @@ export default function CourseDetailsPage() {
               Instructor: {course.instructor?.username || "Platform Instructor"}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4" />
-            <span>
-              Published: {new Date(course.publishedAt).toLocaleDateString()}
-            </span>
-          </div>
+          {course.publishedAt && (
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-4 w-4" />
+              <span>
+                Published: {new Date(course.publishedAt).toLocaleDateString()}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -151,13 +91,20 @@ export default function CourseDetailsPage() {
             {course.description || "No description provided for this course."}
           </div>
         </CardContent>
-        <CardFooter className="bg-slate-50 border-t p-6 flex justify-between items-center">
-          <div className="text-sm text-slate-500">
-            Ready to start learning? Enroll now for free.
+        <CardFooter className="bg-slate-50 border-t p-6 flex flex-col items-end gap-3">
+          <div className="w-full flex justify-between items-center">
+            <div className="text-sm text-slate-500">
+              Ready to start learning? Enroll now for free.
+            </div>
+            <Button size="lg" onClick={handleEnrollment} disabled={isEnrolling}>
+              {isEnrolling ? "Processing..." : "Enroll Now"}
+            </Button>
           </div>
-          <Button size="lg" onClick={handleEnrollment} disabled={isEnrolling}>
-            {isEnrolling ? "Processing..." : "Enroll Now"}
-          </Button>
+          {enrollError && (
+            <p className="text-sm font-medium text-destructive">
+              {enrollError}
+            </p>
+          )}
         </CardFooter>
       </Card>
     </div>

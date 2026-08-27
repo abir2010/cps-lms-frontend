@@ -1,57 +1,26 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppSelector } from "../../store/store";
 import { BookOpen, GraduationCap, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useGetCourseCountQuery } from "../../store/api/coursesApi";
+import { useGetEnrollmentCountQuery } from "../../store/api/enrollmentsApi";
+import { useGetUsersQuery } from "../../store/api/usersApi";
 
 export default function AdminDashboard() {
-  const jwt = useAppSelector((state) => state.auth.jwt);
-  const [stats, setStats] = useState({
-    users: 0,
-    courses: 0,
-    enrollments: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: users, isLoading: usersLoading } = useGetUsersQuery();
+  const { data: courseCount, isLoading: coursesLoading } =
+    useGetCourseCountQuery();
+  const { data: enrollmentCount, isLoading: enrollmentsLoading } =
+    useGetEnrollmentCountQuery();
 
-  useEffect(() => {
-    const fetchPlatformStats = async () => {
-      if (!jwt) return;
-
-      try {
-        const headers = { Authorization: `Bearer ${jwt}` };
-        const STRAPI_URL =
-          process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
-
-        // Fetch counts from Strapi using the built-in pagination meta data
-        const [usersRes, coursesRes, enrollmentsRes] = await Promise.all([
-          fetch(`${STRAPI_URL}/api/users`, { headers }),
-          fetch(`${STRAPI_URL}/api/courses?pagination[withCount]=true`, {
-            headers,
-          }),
-          fetch(`${STRAPI_URL}/api/enrollments?pagination[withCount]=true`, {
-            headers,
-          }),
-        ]);
-
-        const users = await usersRes.json();
-        const courses = await coursesRes.json();
-        const enrollments = await enrollmentsRes.json();
-
-        setStats({
-          users: users.length || 0,
-          courses: courses.meta?.pagination?.total || 0,
-          enrollments: enrollments.meta?.pagination?.total || 0,
-        });
-      } catch (error) {
-        console.error("Failed to fetch stats:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPlatformStats();
-  }, [jwt]);
+  const usersByRole = (users ?? []).reduce<Record<string, number>>(
+    (acc, user) => {
+      const roleName = user.role?.name ?? "Unassigned";
+      acc[roleName] = (acc[roleName] ?? 0) + 1;
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="space-y-6">
@@ -74,7 +43,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : stats.users}
+              {usersLoading ? "..." : (users?.length ?? 0)}
             </div>
           </CardContent>
         </Card>
@@ -88,7 +57,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : stats.courses}
+              {coursesLoading ? "..." : (courseCount ?? 0)}
             </div>
           </CardContent>
         </Card>
@@ -102,11 +71,33 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : stats.enrollments}
+              {enrollmentsLoading ? "..." : (enrollmentCount ?? 0)}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-slate-500">
+            Users by Role
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {usersLoading ? (
+            <p className="text-sm text-slate-500">Loading...</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+              {Object.entries(usersByRole).map(([roleName, count]) => (
+                <div key={roleName}>
+                  <div className="text-2xl font-bold">{count}</div>
+                  <div className="text-xs text-slate-500">{roleName}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

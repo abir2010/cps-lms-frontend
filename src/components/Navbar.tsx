@@ -29,6 +29,13 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <Link
+          href="/blog"
+          className="text-sm text-slate-500 hover:text-slate-900"
+        >
+          Blog
+        </Link>
+
         <div className="text-sm text-slate-500">
           Signed in as{" "}
           <span className="font-semibold text-slate-900">{user.username}</span>
