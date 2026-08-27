@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { getHomeForRole } from "../lib/roleRoutes";
 import { logout } from "../store/authSlice";
 import { useAppDispatch, useAppSelector } from "../store/store";
 
@@ -25,7 +26,10 @@ export default function Navbar() {
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200">
       <div className="text-xl font-bold text-indigo-600">
-        <Link href="/dashboard">Platform Name</Link>
+        {/* Not a hardcoded /dashboard — that's the Student home, and the
+            proxy would otherwise just bounce every other role right back
+            out of it. */}
+        <Link href={getHomeForRole(user.role)}>Platform Name</Link>
       </div>
 
       <div className="flex items-center gap-4">

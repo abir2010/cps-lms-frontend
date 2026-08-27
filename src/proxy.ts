@@ -28,17 +28,19 @@ export function proxy(request: NextRequest) {
   }
 
   if (token && role) {
-    // access admin route only for admin
-    if (isAdminRoute && role !== "Admin")
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+    const isGatedRoute =
+      isAdminRoute || isContentRoute || isInstructorRoute || isStudentRoute;
 
-    // access content route only for content manager and admin
-    if (isContentRoute && role !== "Content Manager" && role !== "Admin")
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+    const isAllowed =
+      role === "Admin" ||
+      !isGatedRoute ||
+      (isContentRoute && role === "Content Manager") ||
+      (isInstructorRoute && role === "Instructor") ||
+      (isStudentRoute && role === "Student");
 
-    // access instructor route only for instructor and admin
-    if (isInstructorRoute && role !== "Instructor" && role !== "Admin")
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (!isAllowed) {
+      return NextResponse.redirect(new URL(getHomeForRole(role), request.url));
+    }
   }
 
   return NextResponse.next();
