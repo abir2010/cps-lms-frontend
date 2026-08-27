@@ -51,7 +51,7 @@ export default function CreateCoursePage() {
           data: {
             title: values.title,
             description: values.description,
-            instructor: user.id,
+            instructor: user.documentId,
           },
         }),
       });

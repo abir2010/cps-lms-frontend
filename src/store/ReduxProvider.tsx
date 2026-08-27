@@ -35,6 +35,7 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
               user: {
                 id: userData.id,
                 username: userData.username,
+                documentId: userData.documentId,
                 email: userData.email,
                 role: userData.role?.name || "Student",
               },

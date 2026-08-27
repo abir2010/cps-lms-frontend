@@ -41,6 +41,7 @@ export async function loginUser(identifier: string, password: string) {
       user: {
         id: userData.id,
         username: userData.username,
+        documentId: userData.documentId,
         email: userData.email,
         role: userData.role?.name || "Student",
       },
@@ -93,6 +94,7 @@ export async function registerUser(
       user: {
         id: userData.id,
         username: userData.username,
+        documentId: userData.documentId,
         email: userData.email,
         role: userData.role?.name || "Student",
       },
