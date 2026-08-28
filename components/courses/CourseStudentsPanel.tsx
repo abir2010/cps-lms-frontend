@@ -13,12 +13,6 @@ interface CourseStudentsPanelProps {
   courseDocumentId: string;
 }
 
-/**
- * Enrolled students + their progress for one course. The backend already
- * scopes `getCourseEnrollments` to "own courses only" for an Instructor, so
- * this single component is safe to reuse on the Instructor, Content Manager
- * and Admin course-edit screens without any extra role branching here.
- */
 export function CourseStudentsPanel({
   courseDocumentId,
 }: CourseStudentsPanelProps) {

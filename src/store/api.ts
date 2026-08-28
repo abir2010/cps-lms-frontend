@@ -14,6 +14,14 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Course", "Lesson", "Enrollment", "Blog", "User"],
+  tagTypes: [
+    "Course",
+    "Lesson",
+    "Enrollment",
+    "Blog",
+    "User",
+    "Quiz",
+    "QuizResult",
+  ],
   endpoints: () => ({}),
 });

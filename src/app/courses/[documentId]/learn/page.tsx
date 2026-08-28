@@ -109,14 +109,23 @@ export default function LearningInterface() {
           </Button>
           <h1 className="text-xl font-bold">{course.title}</h1>
         </div>
-        <div className="flex items-center space-x-4 w-64">
-          <div className="text-sm font-medium">
-            {enrollment.progress_percentage || 0}%
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push(`/courses/${params.documentId}/quiz`)}
+          >
+            Take Quiz
+          </Button>
+          <div className="w-64 flex items-center space-x-4">
+            <div className="text-sm font-medium">
+              {enrollment.progress_percentage || 0}%
+            </div>
+            <Progress
+              value={enrollment.progress_percentage || 0}
+              className="h-2 w-full"
+            />
           </div>
-          <Progress
-            value={enrollment.progress_percentage || 0}
-            className="h-2 w-full"
-          />
         </div>
       </header>
 

@@ -31,7 +31,6 @@ interface BlogFormProps {
   onCancel: () => void;
 }
 
-/** One form, reused for both "write a new post" and "edit a post". */
 export function BlogForm({
   initialValues,
   submitLabel,

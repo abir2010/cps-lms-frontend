@@ -11,19 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2 } from "lucide-react";
-import Link from "next/link";
-import { useAppSelector } from "@/src/store/store";
 import {
   useDeleteCourseMutation,
   useGetCoursesQuery,
 } from "@/src/store/api/coursesApi";
+import { useAppSelector } from "@/src/store/store";
+import { Trash2 } from "lucide-react";
+import Link from "next/link";
 
 interface CourseManagerListProps {
-  /** "own" scopes the list to the logged-in Instructor's courses; "all"
-   * shows every course on the platform (Content Manager / Admin). */
   scope: "own" | "all";
-  /** Route prefix for "create" / "edit" links, e.g. "/instructor/courses". */
   basePath: string;
   title: string;
   description: string;

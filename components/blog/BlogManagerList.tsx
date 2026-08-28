@@ -20,10 +20,7 @@ import {
 } from "@/src/store/api/blogApi";
 
 interface BlogManagerListProps {
-  /** Route prefix for "new" / "edit" links, e.g. "/content/blogs". */
   basePath: string;
-  /** True for Admin, who can delete anyone's post (the backend enforces
-   * this regardless — this only affects whether the button is shown). */
   canDeleteAny?: boolean;
 }
 

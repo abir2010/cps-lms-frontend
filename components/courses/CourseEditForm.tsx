@@ -2,40 +2,28 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAppSelector } from "@/src/store/store";
 import {
   useDeleteCourseMutation,
   useGetCourseQuery,
   useUpdateCourseMutation,
 } from "@/src/store/api/coursesApi";
+import { useAppSelector } from "@/src/store/store";
+import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { QuizManager } from "../quiz/QuizManager";
 import { CourseStudentsPanel } from "./CourseStudentsPanel";
 import { LessonManager } from "./LessonManager";
 
 interface CourseEditFormProps {
   documentId: string;
-  /** Where "Delete Course" and errors send the user back to. */
   listPath: string;
 }
 
-/**
- * The full "manage one course" screen: edit details, delete, manage
- * lessons, and see who's enrolled with their progress. Used by both the
- * Instructor's own-course editor and Content Manager/Admin's any-course
- * editor — the backend enforces who's actually allowed to write, this
- * component doesn't need to know which role is looking at it.
- */
 export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
@@ -100,7 +88,8 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
 
       {!isOwner && (
         <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
-          This course belongs to another instructor ({course.instructor?.username}
+          This course belongs to another instructor (
+          {course.instructor?.username}
           ).
         </p>
       )}
@@ -129,7 +118,9 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
           </div>
 
           {courseError && (
-            <p className="text-sm font-medium text-destructive">{courseError}</p>
+            <p className="text-sm font-medium text-destructive">
+              {courseError}
+            </p>
           )}
 
           <div className="flex justify-between pt-4 border-t">
@@ -148,6 +139,8 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
         courseDocumentId={course.documentId}
         lessons={course.lessons ?? []}
       />
+
+      <QuizManager courseId={course.id} courseDocumentId={course.documentId} />
 
       <CourseStudentsPanel courseDocumentId={course.documentId} />
     </div>

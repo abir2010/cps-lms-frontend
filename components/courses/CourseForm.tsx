@@ -22,7 +22,6 @@ const courseSchema = z.object({
 type CourseSchema = z.infer<typeof courseSchema>;
 
 interface CourseFormProps {
-  /** Where to land after a successful create — the new course's edit page. */
   editPathFor: (documentId: string) => string;
   listPath: string;
 }

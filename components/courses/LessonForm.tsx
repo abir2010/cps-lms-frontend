@@ -16,7 +16,7 @@ import { useState } from "react";
 export interface LessonFormValues {
   title: string;
   type: "text" | "video";
-  content: string; // text_content or video_url, depending on `type`
+  content: string;
 }
 
 interface LessonFormProps {
@@ -27,11 +27,6 @@ interface LessonFormProps {
   onCancel?: () => void;
 }
 
-/**
- * One form, reused for both "add a lesson" and "edit a lesson" — the two
- * flows only differ in initial values and what the submit handler does with
- * them, so there's no reason to keep two near-identical forms in sync.
- */
 export function LessonForm({
   initialValues,
   submitLabel,
