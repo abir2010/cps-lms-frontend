@@ -3,11 +3,39 @@
 import { CategoryDonut } from "@/components/dashboard/category-donut";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Loader } from "@/components/shared/loader";
-import { Button } from "@/components/ui/button";
-import { BookOpen, CheckCircle2, FileEdit } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  ArrowRight,
+  BarChart3,
+  BookOpen,
+  CheckCircle2,
+  FileEdit,
+  ListChecks,
+} from "lucide-react";
 import Link from "next/link";
 import { useGetCoursesQuery } from "../../store/api/coursesApi";
 import { useAppSelector } from "../../store/store";
+
+const quickLinks = [
+  {
+    href: "/instructor/courses",
+    icon: BookOpen,
+    title: "My Courses",
+    description: "Create, edit, and publish your curriculum.",
+  },
+  {
+    href: "/instructor/students",
+    icon: BarChart3,
+    title: "Course Completion by Student",
+    description: "See how far every enrolled student has progressed.",
+  },
+  {
+    href: "/instructor/quiz-results",
+    icon: ListChecks,
+    title: "Quiz Results",
+    description: "Review attempts and accuracy across your quizzes.",
+  },
+];
 
 export default function InstructorHomePage() {
   const user = useAppSelector((state) => state.auth.user);
@@ -68,9 +96,35 @@ export default function InstructorHomePage() {
         )
       )}
 
-      <Link href="/instructor/courses">
-        <Button>Go to My Courses</Button>
-      </Link>
+      <div>
+        <h2 className="mb-4 text-xl font-semibold text-foreground">
+          Quick links
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {quickLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              <Card className="group h-full transition-shadow hover:shadow-md">
+                <CardContent className="flex h-full flex-col gap-3 p-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <link.icon className="size-5" strokeWidth={2} />
+                    </div>
+                    <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">
+                      {link.title}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {link.description}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

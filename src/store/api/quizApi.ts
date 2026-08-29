@@ -11,6 +11,7 @@ export interface QuizQuestion {
   option_c: string;
   option_d: string;
   correct_answer?: QuizOption;
+  course?: { id: number; documentId: string; title: string };
 }
 
 export interface QuizResult {
@@ -52,7 +53,6 @@ export const quizApi = api.injectEndpoints({
     }),
 
     addQuizQuestion: builder.mutation<QuizQuestion, QuizQuestionInput>({
-      // courseDocumentId only exists to key cache invalidation below —
       query: (input) => {
         const { courseDocumentId, ...data } = input;
         void courseDocumentId;
@@ -96,7 +96,6 @@ export const quizApi = api.injectEndpoints({
       ],
     }),
 
-    // The student's own results for one course's quiz —
     getMyQuizResults: builder.query<QuizResult[], string>({
       query: (courseDocumentId) =>
         `/quiz-results?filters[quiz][course][documentId][$eq]=${courseDocumentId}&populate=quiz`,
@@ -106,7 +105,6 @@ export const quizApi = api.injectEndpoints({
       ],
     }),
 
-    // Instructor/Admin/Content Manager view of one course's quiz results —
     getCourseQuizResults: builder.query<QuizResult[], string>({
       query: (courseDocumentId) =>
         `/quiz-results?filters[quiz][course][documentId][$eq]=${courseDocumentId}&populate=student,quiz`,
@@ -114,6 +112,13 @@ export const quizApi = api.injectEndpoints({
       providesTags: (_result, _error, courseDocumentId) => [
         { type: "QuizResult", id: `COURSE-${courseDocumentId}` },
       ],
+    }),
+
+    getInstructorQuizResults: builder.query<QuizResult[], void>({
+      query: () =>
+        `/quiz-results?populate[student]=true&populate[quiz][populate][course]=true`,
+      transformResponse: (res: { data: QuizResult[] }) => res.data,
+      providesTags: [{ type: "QuizResult", id: "LIST" }],
     }),
 
     submitQuizAnswer: builder.mutation<
@@ -140,5 +145,6 @@ export const {
   useDeleteQuizQuestionMutation,
   useGetMyQuizResultsQuery,
   useGetCourseQuizResultsQuery,
+  useGetInstructorQuizResultsQuery,
   useSubmitQuizAnswerMutation,
 } = quizApi;

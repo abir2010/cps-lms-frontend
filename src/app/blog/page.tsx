@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,13 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Calendar, User } from "lucide-react";
+import { Calendar, ChevronLeft, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useGetPublishedBlogsQuery } from "../../store/api/blogApi";
 
 export default function PublicBlogList() {
   const { data: posts, isLoading } = useGetPublishedBlogsQuery();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -26,6 +29,13 @@ export default function PublicBlogList() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 p-6">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => router.push("/dashboard")}
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </Button>
       <header className="text-center space-y-4 py-8">
         <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
           Platform Updates & Articles

@@ -11,8 +11,16 @@ export function proxy(request: NextRequest) {
   const isAdminRoute = pathname.startsWith("/admin");
   const isContentRoute = pathname.startsWith("/content");
   const isInstructorRoute = pathname.startsWith("/instructor");
+  // A course's own detail page (/courses/:id) is a public marketing page —
+  // Strapi's course.find/findOne are granted to the Public role for exactly
+  // this. Only the *content* routes under one course (actually learning
+  // from it, taking its quiz) stay gated — that's real course access, not
+  // browsing the catalog.
+  const isCourseContentRoute = /^\/courses\/[^/]+\/(learn|quiz)(\/|$)/.test(
+    pathname,
+  );
   const isStudentRoute =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/courses");
+    pathname.startsWith("/dashboard") || isCourseContentRoute;
   const isAuthRoute =
     pathname.startsWith("/login") || pathname.startsWith("/register");
 

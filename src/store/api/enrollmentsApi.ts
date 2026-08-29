@@ -19,15 +19,10 @@ export interface Enrollment {
 
 export const enrollmentsApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // The backend already scopes results to "my own" for a Student and "my
-    // courses' students" for an Instructor — this endpoint just needs to ask.
     getMyEnrollments: builder.query<Enrollment[], void>({
       query: () =>
         `/enrollments?populate[course][populate][instructor]=true&populate[course][populate][lessons]=true&populate[completed_lessons]=true`,
       transformResponse: (res: { data: Enrollment[] }) => res.data,
-      // Tagged by documentId (not the numeric `id`) because every mutation
-      // below invalidates by documentId — a mismatched key type here would
-      // mean "invalidate" silently invalidates nothing and the UI goes stale.
       providesTags: (result) =>
         result
           ? [
@@ -40,8 +35,6 @@ export const enrollmentsApi = api.injectEndpoints({
           : [{ type: "Enrollment" as const, id: "LIST" }],
     }),
 
-    // One enrollment's full detail (with lessons on the course) for the
-    // lesson-viewer page.
     getEnrollmentForCourse: builder.query<Enrollment | null, string>({
       query: (courseDocumentId) =>
         `/enrollments?filters[course][documentId][$eq]=${courseDocumentId}&populate=completed_lessons`,
@@ -55,9 +48,6 @@ export const enrollmentsApi = api.injectEndpoints({
           : [{ type: "Enrollment", id: "LIST" }],
     }),
 
-    // Instructor/Admin/Content Manager view of who's enrolled in one course
-    // and how far along they are — the backend enforces "own courses only"
-    // for Instructor, so the same query is safe to reuse everywhere.
     getCourseEnrollments: builder.query<Enrollment[], string>({
       query: (courseDocumentId) =>
         `/enrollments?filters[course][documentId][$eq]=${courseDocumentId}&populate=student`,
@@ -108,7 +98,12 @@ export const enrollmentsApi = api.injectEndpoints({
       ],
     }),
 
-    // Lightweight count for the admin stats dashboard.
+    getMyCoursesEnrollments: builder.query<Enrollment[], void>({
+      query: () => `/enrollments?populate=student,course`,
+      transformResponse: (res: { data: Enrollment[] }) => res.data,
+      providesTags: [{ type: "Enrollment", id: "LIST" }],
+    }),
+
     getEnrollmentCount: builder.query<number, void>({
       query: () =>
         `/enrollments?pagination[pageSize]=1&pagination[withCount]=true`,
@@ -123,6 +118,7 @@ export const {
   useGetMyEnrollmentsQuery,
   useGetEnrollmentForCourseQuery,
   useGetCourseEnrollmentsQuery,
+  useGetMyCoursesEnrollmentsQuery,
   useEnrollMutation,
   useUpdateEnrollmentProgressMutation,
   useGetEnrollmentCountQuery,
