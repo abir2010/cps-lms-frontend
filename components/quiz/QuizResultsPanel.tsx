@@ -42,9 +42,11 @@ export function QuizResultsPanel({ courseDocumentId }: QuizResultsPanelProps) {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="text-sm text-slate-500">Loading quiz results...</p>
+          <p className="text-sm text-muted-foreground">
+            Loading quiz results...
+          </p>
         ) : rows.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             No students have taken this course&apos;s quiz yet.
           </p>
         ) : (
@@ -55,7 +57,7 @@ export function QuizResultsPanel({ courseDocumentId }: QuizResultsPanelProps) {
                 className="flex items-center justify-between px-4 py-3"
               >
                 <span className="font-medium">{row.username}</span>
-                <span className="text-sm text-slate-600">
+                <span className="text-sm text-muted-foreground">
                   {row.correct} / {row.total} correct (
                   {Math.round((row.correct / row.total) * 100)}%)
                 </span>

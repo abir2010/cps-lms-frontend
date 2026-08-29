@@ -15,17 +15,19 @@ export default function SingleBlogPost() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-slate-500">Loading article...</div>
+      <div className="p-8 text-center text-muted-foreground">
+        Loading article...
+      </div>
     );
   }
 
   if (!post || post.status_type === "draft") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <div className="text-xl font-semibold text-slate-700">
+        <div className="text-xl font-semibold text-foreground">
           Article not found
         </div>
-        <p className="text-slate-500">
+        <p className="text-muted-foreground">
           This post may have been removed or is not yet published.
         </p>
         <Button variant="outline" onClick={() => router.push("/blog")}>
@@ -42,24 +44,24 @@ export default function SingleBlogPost() {
         <Button
           variant="ghost"
           onClick={() => router.push("/blog")}
-          className="-ml-4 text-slate-500 hover:text-slate-900"
+          className="-ml-4 text-muted-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back to Articles
         </Button>
 
         <div className="space-y-4">
-          <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">
+          <Badge variant="secondary" className="bg-primary/10 text-primary">
             Published
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
             {post.title}
           </h1>
 
-          <div className="flex items-center space-x-6 text-sm text-slate-500 border-t border-b py-4 mt-6">
+          <div className="flex items-center space-x-6 text-sm text-muted-foreground border-t border-b py-4 mt-6">
             <div className="flex items-center space-x-2">
               <User className="h-4 w-4" />
-              <span className="font-medium text-slate-700">
+              <span className="font-medium text-foreground">
                 {post.author?.username || "Platform Admin"}
               </span>
             </div>
@@ -79,7 +81,7 @@ export default function SingleBlogPost() {
 
       {/* Cover Image */}
       {post.cover_image_url && (
-        <div className="w-full aspect-video rounded-xl overflow-hidden bg-slate-100 shadow-md relative">
+        <div className="w-full aspect-video rounded-xl overflow-hidden bg-muted shadow-md relative">
           <Image
             src={post.cover_image_url}
             alt={post.title}
@@ -91,7 +93,7 @@ export default function SingleBlogPost() {
       )}
 
       {/* Article Body */}
-      <div className="prose prose-slate prose-lg max-w-none whitespace-pre-wrap leading-relaxed text-slate-800">
+      <div className="prose prose-slate prose-lg max-w-none whitespace-pre-wrap leading-relaxed text-foreground">
         {post.body}
       </div>
     </article>

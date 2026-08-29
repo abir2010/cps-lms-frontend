@@ -46,7 +46,7 @@ export default function AdminUsersPage() {
       case "Content Manager":
         return "secondary";
       default:
-        return "outline"; // Default for Student
+        return "outline";
     }
   };
 
@@ -54,7 +54,7 @@ export default function AdminUsersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Manage Users</h1>
-        <p className="text-slate-500 mt-2">
+        <p className="text-muted-foreground mt-2">
           View registered accounts and modify platform access levels.
         </p>
       </div>
@@ -79,7 +79,7 @@ export default function AdminUsersPage() {
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      className="text-center py-8 text-slate-500"
+                      className="text-center py-8 text-muted-foreground"
                     >
                       Loading platform users...
                     </TableCell>

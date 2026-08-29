@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { FieldError } from "@/components/shared/field-error";
+import { Loader } from "@/components/shared/loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,7 +54,7 @@ export function CourseForm({ editPathFor, listPath }: CourseFormProps) {
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Draft New Course</h1>
-        <p className="text-slate-500 mt-2">
+        <p className="text-muted-foreground mt-2">
           Set up the foundational details for your curriculum.
         </p>
       </div>
@@ -70,11 +72,7 @@ export function CourseForm({ editPathFor, listPath }: CourseFormProps) {
                 placeholder="e.g., Introduction to Advanced Algorithms"
                 {...register("title")}
               />
-              {errors.title && (
-                <p className="text-sm font-medium text-destructive">
-                  {errors.title.message}
-                </p>
-              )}
+              <FieldError message={errors.title?.message} />
             </div>
 
             <div className="space-y-2">
@@ -85,18 +83,10 @@ export function CourseForm({ editPathFor, listPath }: CourseFormProps) {
                 className="min-h-37.5"
                 {...register("description")}
               />
-              {errors.description && (
-                <p className="text-sm font-medium text-destructive">
-                  {errors.description.message}
-                </p>
-              )}
+              <FieldError message={errors.description?.message} />
             </div>
 
-            {errors.root && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.root.message}
-              </p>
-            )}
+            <FieldError message={errors.root?.message} />
 
             <div className="flex justify-end space-x-4 pt-4 border-t">
               <Button
@@ -107,7 +97,11 @@ export function CourseForm({ editPathFor, listPath }: CourseFormProps) {
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving Draft..." : "Create Course"}
+                {isLoading ? (
+                  <Loader size="sm" label="Saving Draft..." />
+                ) : (
+                  "Create Course"
+                )}
               </Button>
             </div>
           </form>

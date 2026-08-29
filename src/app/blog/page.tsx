@@ -18,7 +18,7 @@ export default function PublicBlogList() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-slate-500">
+      <div className="p-8 text-center text-muted-foreground">
         Loading latest posts...
       </div>
     );
@@ -27,18 +27,18 @@ export default function PublicBlogList() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 p-6">
       <header className="text-center space-y-4 py-8">
-        <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
           Platform Updates & Articles
         </h1>
-        <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Read the latest news, tutorials, and announcements from our
           instructors and admins.
         </p>
       </header>
 
       {!posts || posts.length === 0 ? (
-        <Card className="bg-slate-50 border-dashed">
-          <CardContent className="flex flex-col items-center justify-center h-40 text-slate-500">
+        <Card className="bg-muted/40 border-dashed">
+          <CardContent className="flex flex-col items-center justify-center h-40 text-muted-foreground">
             <p>No published posts available right now. Check back later!</p>
           </CardContent>
         </Card>
@@ -48,7 +48,7 @@ export default function PublicBlogList() {
             <Link key={post.documentId} href={`/blog/${post.documentId}`}>
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer overflow-hidden flex flex-col">
                 {post.cover_image_url && (
-                  <div className="h-48 w-full bg-slate-100 overflow-hidden shrink-0 relative">
+                  <div className="h-48 w-full bg-muted overflow-hidden shrink-0 relative">
                     <Image
                       src={post.cover_image_url}
                       alt={post.title}
@@ -62,7 +62,7 @@ export default function PublicBlogList() {
                   <div className="flex justify-between items-start mb-2">
                     <Badge
                       variant="secondary"
-                      className="bg-indigo-50 text-indigo-700"
+                      className="bg-primary/10 text-primary"
                     >
                       Published
                     </Badge>
@@ -72,9 +72,11 @@ export default function PublicBlogList() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1">
-                  <p className="text-slate-500 line-clamp-3">{post.body}</p>
+                  <p className="text-muted-foreground line-clamp-3">
+                    {post.body}
+                  </p>
                 </CardContent>
-                <CardFooter className="bg-slate-50 border-t p-4 flex items-center space-x-6 text-xs text-slate-500">
+                <CardFooter className="bg-muted/40 border-t p-4 flex items-center space-x-6 text-xs text-muted-foreground">
                   <div className="flex items-center space-x-1">
                     <User className="h-3 w-3" />
                     <span>{post.author?.username || "Admin"}</span>

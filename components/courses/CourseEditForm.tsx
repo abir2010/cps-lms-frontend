@@ -1,29 +1,26 @@
 "use client";
 
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { Loader } from "@/components/shared/loader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAppSelector } from "@/src/store/store";
 import {
   useDeleteCourseMutation,
   useGetCourseQuery,
   useUpdateCourseMutation,
 } from "@/src/store/api/coursesApi";
-import { CourseStudentsPanel } from "./CourseStudentsPanel";
-import { LessonManager } from "./LessonManager";
+import { useAppSelector } from "@/src/store/store";
+import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { QuizManager } from "../quiz/QuizManager";
 import { QuizResultsPanel } from "../quiz/QuizResultsPanel";
+import { CourseStudentsPanel } from "./CourseStudentsPanel";
+import { LessonManager } from "./LessonManager";
 
 interface CourseEditFormProps {
   documentId: string;
@@ -41,15 +38,20 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
   const [title, setTitle] = useState<string | null>(null);
   const [description, setDescription] = useState<string | null>(null);
   const [courseError, setCourseError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   if (isLoading) {
-    return <p className="text-slate-500">Loading course...</p>;
+    return (
+      <div className="flex justify-center p-10">
+        <Loader label="Loading course..." />
+      </div>
+    );
   }
 
   if (error || !course) {
     return (
-      <Card className="bg-slate-50 border-dashed">
-        <CardContent className="flex flex-col items-center justify-center h-40 text-slate-500">
+      <Card className="border-dashed bg-muted/40">
+        <CardContent className="flex h-40 flex-col items-center justify-center text-muted-foreground">
           <p>Course not found.</p>
         </CardContent>
       </Card>
@@ -73,7 +75,6 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
   };
 
   const handleDelete = async () => {
-    if (!confirm("Delete this course and all of its lessons?")) return;
     await deleteCourse(documentId).unwrap();
     router.push(listPath);
   };
@@ -82,8 +83,10 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Course</h1>
-          <p className="text-slate-500 mt-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Edit Course
+          </h1>
+          <p className="mt-2 text-muted-foreground">
             Update the course details and build out its lessons.
           </p>
         </div>
@@ -93,8 +96,9 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
       </div>
 
       {!isOwner && (
-        <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
-          This course belongs to another instructor ({course.instructor?.username}
+        <p className="rounded-md border border-accent/40 bg-accent/15 px-4 py-3 text-sm text-accent-foreground">
+          This course belongs to another instructor (
+          {course.instructor?.username}
           ).
         </p>
       )}
@@ -123,15 +127,24 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
           </div>
 
           {courseError && (
-            <p className="text-sm font-medium text-destructive">{courseError}</p>
+            <p className="text-sm font-medium text-destructive">
+              {courseError}
+            </p>
           )}
 
-          <div className="flex justify-between pt-4 border-t">
-            <Button variant="destructive" onClick={handleDelete}>
+          <div className="flex justify-between border-t pt-4">
+            <Button
+              variant="destructive"
+              onClick={() => setConfirmingDelete(true)}
+            >
               <Trash2 className="h-4 w-4 mr-1" /> Delete Course
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save Changes"}
+              {isSaving ? (
+                <Loader size="sm" label="Saving..." />
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </div>
         </CardContent>
@@ -148,6 +161,16 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
       <CourseStudentsPanel courseDocumentId={course.documentId} />
 
       <QuizResultsPanel courseDocumentId={course.documentId} />
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={`Delete "${course.title}"?`}
+        description="This permanently removes the course and all of its lessons. This can't be undone."
+        confirmLabel="Delete course"
+        tone="destructive"
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

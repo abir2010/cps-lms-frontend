@@ -1,9 +1,17 @@
+import { RouteTransition } from "@/components/shared/route-transition";
+import { ScrollToTop } from "@/components/shared/scroll-to-top";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import ReduxProvider from "../store/ReduxProvider";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   title: "LMS Platform",
@@ -16,10 +24,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        {/* Wrap the children with your Client-Side Redux Provider */}
-        <ReduxProvider>{children}</ReduxProvider>
+    <html lang="en" suppressHydrationWarning className={jakarta.variable}>
+      <body className="antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* Wrap the children with your Client-Side Redux Provider */}
+          <ReduxProvider>
+            <RouteTransition>
+              {children}
+              <ScrollToTop />
+            </RouteTransition>
+          </ReduxProvider>
+          <Toaster position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

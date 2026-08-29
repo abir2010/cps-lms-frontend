@@ -1,11 +1,13 @@
 "use client";
 
 import Cookies from "js-cookie";
+import { GraduationCap, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { logout } from "../../store/authSlice";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 export default function AdminLayout({
@@ -34,24 +36,31 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold">LMS Admin</h2>
-          <p className="text-sm text-slate-400 mt-1">{user?.username}</p>
+    <div className="flex min-h-screen bg-background">
+      {/* Sidebar — deliberately its own dark chrome regardless of the
+          site theme, a common admin-panel convention; the toggle below
+          still controls the theme of the main content area. */}
+      <aside className="flex w-64 flex-col bg-[oklch(0.19_0.02_264)] text-white">
+        <div className="flex items-center gap-2.5 p-6">
+          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <GraduationCap className="size-5" strokeWidth={2.25} />
+          </span>
+          <div>
+            <h2 className="text-lg leading-tight font-bold">LMS Admin</h2>
+            <p className="text-xs text-white/50">{user?.username}</p>
+          </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
+        <nav className="mt-4 flex-1 space-y-1 px-4">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link key={link.name} href={link.href}>
                 <span
-                  className={`block px-4 py-2 rounded-md transition-colors ${
+                  className={`block rounded-md px-4 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-indigo-600 text-white"
-                      : "text-slate-300 hover:bg-slate-800"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-white/60 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {link.name}
@@ -61,12 +70,17 @@ export default function AdminLayout({
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-800">
+        <div className="space-y-3 border-t border-white/10 p-4">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-white/50">Theme</span>
+            <ThemeToggle />
+          </div>
           <Button
             variant="destructive"
-            className="w-full"
+            className="w-full gap-1.5"
             onClick={handleLogout}
           >
+            <LogOut className="size-3.5" />
             Log Out
           </Button>
         </div>

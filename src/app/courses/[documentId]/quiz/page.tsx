@@ -2,16 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, ChevronLeft, XCircle } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
-import { useGetCourseQuery } from "../../../../store/api/coursesApi";
+import { useGetCourseQuery } from "@/src/store/api/coursesApi";
 import {
   useGetMyQuizResultsQuery,
   useGetQuizForCourseQuery,
   useSubmitQuizAnswerMutation,
   type QuizOption,
-} from "../../../../store/api/quizApi";
+} from "@/src/store/api/quizApi";
+import { CheckCircle2, ChevronLeft, XCircle } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const OPTIONS: {
   key: QuizOption;
@@ -43,7 +43,9 @@ export default function TakeQuizPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-slate-500">Loading quiz...</div>
+      <div className="p-8 text-center text-muted-foreground">
+        Loading quiz...
+      </div>
     );
   }
 
@@ -55,8 +57,8 @@ export default function TakeQuizPage() {
         <Button variant="ghost" onClick={backToCourse}>
           <ChevronLeft className="h-4 w-4 mr-2" /> Back to Course
         </Button>
-        <Card className="bg-slate-50 border-dashed">
-          <CardContent className="flex items-center justify-center h-32 text-slate-500">
+        <Card className="bg-muted/40 border-dashed">
+          <CardContent className="flex items-center justify-center h-32 text-muted-foreground">
             No quiz is available for this course yet.
           </CardContent>
         </Card>
@@ -120,7 +122,7 @@ export default function TakeQuizPage() {
         <h1 className="text-2xl font-bold tracking-tight">
           {course?.title ? `${course.title} — Quiz` : "Quiz"}
         </h1>
-        <p className="text-slate-500 mt-1">
+        <p className="text-muted-foreground mt-1">
           {allAnswered
             ? "You've completed this quiz. Here's how you did."
             : "Answer every question, then submit."}
@@ -128,12 +130,12 @@ export default function TakeQuizPage() {
       </div>
 
       {allAnswered && (
-        <Card className="bg-indigo-50 border-indigo-200">
+        <Card className="bg-primary/10 border-primary/20">
           <CardContent className="py-6 text-center">
-            <p className="text-3xl font-bold text-indigo-700">
+            <p className="text-3xl font-bold text-primary">
               {correctCount} / {questions.length}
             </p>
-            <p className="text-sm text-indigo-600 mt-1">
+            <p className="text-sm text-primary mt-1">
               {Math.round((correctCount / questions.length) * 100)}% correct
             </p>
           </CardContent>
@@ -169,13 +171,13 @@ export default function TakeQuizPage() {
                     className={`w-full flex items-center justify-between gap-3 rounded-md border px-4 py-2 text-left text-sm transition-colors ${
                       isAnswered
                         ? isCorrectOption
-                          ? "bg-green-50 border-green-300"
+                          ? "bg-success/10 border-success/30"
                           : isSelected
-                            ? "bg-red-50 border-red-300"
-                            : "bg-white border-slate-200"
+                            ? "bg-destructive/10 border-destructive/30"
+                            : "bg-card border-border"
                         : isSelected
-                          ? "bg-indigo-50 border-indigo-400"
-                          : "bg-white border-slate-200 hover:bg-slate-50"
+                          ? "bg-primary/10 border-primary"
+                          : "bg-card border-border hover:bg-muted/40"
                     }`}
                   >
                     <span>
@@ -183,10 +185,10 @@ export default function TakeQuizPage() {
                       {q[field]}
                     </span>
                     {isAnswered && isCorrectOption && (
-                      <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
                     )}
                     {isAnswered && isSelected && !isCorrectOption && (
-                      <XCircle className="h-4 w-4 text-red-600 shrink-0" />
+                      <XCircle className="h-4 w-4 text-destructive shrink-0" />
                     )}
                   </button>
                 );

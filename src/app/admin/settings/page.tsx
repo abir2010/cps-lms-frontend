@@ -16,10 +16,9 @@ import { useState } from "react";
 export default function SiteConfigurationPage() {
   const [isSaving, setIsSaving] = useState(false);
 
-  // In a real implementation, you would fetch these from a Strapi Single Type
   const [config, setConfig] = useState({
-    platformName: "LMS Platform",
-    supportEmail: "support@example.com",
+    platformName: "Explora Learn",
+    supportEmail: "support@explora.com",
     maxUploadSize: "500",
   });
 
@@ -37,7 +36,7 @@ export default function SiteConfigurationPage() {
         <h1 className="text-3xl font-bold tracking-tight">
           Site Configuration
         </h1>
-        <p className="text-slate-500 mt-2">
+        <p className="text-muted-foreground mt-2">
           Manage global platform settings and parameters.
         </p>
       </div>

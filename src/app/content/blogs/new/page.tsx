@@ -2,9 +2,9 @@
 
 import { BlogForm, type BlogFormValues } from "@/components/blog/BlogForm";
 import { Button } from "@/components/ui/button";
+import { useCreateBlogMutation } from "@/src/store/api/blogApi";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCreateBlogMutation } from "@/src/store/api/blogApi";
 
 export default function CreateContentBlogPage() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function CreateContentBlogPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Draft New Post</h1>
-          <p className="text-slate-500 mt-1">
+          <p className="text-muted-foreground mt-1">
             Write a new article or announcement for the platform.
           </p>
         </div>

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useGetCourseEnrollmentsQuery } from "@/src/store/api/enrollmentsApi";
 
@@ -26,9 +21,11 @@ export function CourseStudentsPanel({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="text-sm text-slate-500">Loading enrolled students...</p>
+          <p className="text-sm text-muted-foreground">
+            Loading enrolled students...
+          </p>
         ) : !enrollments || enrollments.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             No students are enrolled in this course yet.
           </p>
         ) : (
@@ -42,7 +39,7 @@ export function CourseStudentsPanel({
                   <p className="font-medium truncate">
                     {enrollment.student?.username}
                   </p>
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="text-xs text-muted-foreground truncate">
                     {enrollment.student?.email}
                   </p>
                 </div>

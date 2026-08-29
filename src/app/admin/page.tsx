@@ -1,6 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CategoryDonut } from "@/components/dashboard/category-donut";
+import { StatCard } from "@/components/dashboard/stat-card";
+import { Loader } from "@/components/shared/loader";
+import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users } from "lucide-react";
 import { useGetCourseCountQuery } from "../../store/api/coursesApi";
 import { useGetEnrollmentCountQuery } from "../../store/api/enrollmentsApi";
@@ -25,79 +28,51 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Dashboard Overview
         </h1>
-        <p className="text-slate-500 mt-2">
+        <p className="mt-2 text-muted-foreground">
           Welcome to the platform administration console.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">
-              Total Users
-            </CardTitle>
-            <Users className="h-4 w-4 text-slate-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {usersLoading ? "..." : (users?.length ?? 0)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">
-              Total Courses
-            </CardTitle>
-            <BookOpen className="h-4 w-4 text-slate-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {coursesLoading ? "..." : (courseCount ?? 0)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">
-              Active Enrollments
-            </CardTitle>
-            <GraduationCap className="h-4 w-4 text-slate-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {enrollmentsLoading ? "..." : (enrollmentCount ?? 0)}
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          icon={Users}
+          label="Total users"
+          value={usersLoading ? "…" : String(users?.length ?? 0)}
+          index={0}
+        />
+        <StatCard
+          icon={BookOpen}
+          label="Total courses"
+          value={coursesLoading ? "…" : String(courseCount ?? 0)}
+          index={1}
+        />
+        <StatCard
+          icon={GraduationCap}
+          label="Active enrollments"
+          value={enrollmentsLoading ? "…" : String(enrollmentCount ?? 0)}
+          index={2}
+        />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-slate-500">
-            Users by Role
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {usersLoading ? (
-            <p className="text-sm text-slate-500">Loading...</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-              {Object.entries(usersByRole).map(([roleName, count]) => (
-                <div key={roleName}>
-                  <div className="text-2xl font-bold">{count}</div>
-                  <div className="text-xs text-slate-500">{roleName}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {usersLoading ? (
+        <Card>
+          <CardContent className="flex justify-center p-10">
+            <Loader label="Loading user data..." />
+          </CardContent>
+        </Card>
+      ) : (
+        <CategoryDonut
+          title="Users by role"
+          subtitle={`${users?.length ?? 0} total accounts`}
+          data={Object.entries(usersByRole).map(([name, value]) => ({
+            name,
+            value,
+          }))}
+        />
+      )}
     </div>
   );
 }

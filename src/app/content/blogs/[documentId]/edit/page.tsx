@@ -3,18 +3,22 @@
 import { BlogForm, type BlogFormValues } from "@/components/blog/BlogForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
 import {
   useGetBlogPostQuery,
   useUpdateBlogMutation,
 } from "@/src/store/api/blogApi";
+import { ArrowLeft } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 
 export default function EditContentBlogPage() {
   const params = useParams<{ documentId: string }>();
   const router = useRouter();
 
-  const { data: post, isLoading, error } = useGetBlogPostQuery(params.documentId);
+  const {
+    data: post,
+    isLoading,
+    error,
+  } = useGetBlogPostQuery(params.documentId);
   const [updateBlog, { isLoading: isSaving }] = useUpdateBlogMutation();
 
   const onSubmit = async (values: BlogFormValues) => {
@@ -26,13 +30,13 @@ export default function EditContentBlogPage() {
   };
 
   if (isLoading) {
-    return <p className="p-8 text-slate-500">Loading post...</p>;
+    return <p className="p-8 text-muted-foreground">Loading post...</p>;
   }
 
   if (error || !post) {
     return (
-      <Card className="bg-slate-50 border-dashed">
-        <CardContent className="flex flex-col items-center justify-center h-40 text-slate-500">
+      <Card className="bg-muted/40 border-dashed">
+        <CardContent className="flex flex-col items-center justify-center h-40 text-muted-foreground">
           <p>Post not found.</p>
         </CardContent>
       </Card>
@@ -47,7 +51,9 @@ export default function EditContentBlogPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Edit Post</h1>
-          <p className="text-slate-500 mt-1">Update this article or announcement.</p>
+          <p className="text-muted-foreground mt-1">
+            Update this article or announcement.
+          </p>
         </div>
       </div>
 

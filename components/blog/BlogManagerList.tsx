@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { Loader } from "@/components/shared/loader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,16 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2 } from "lucide-react";
-import Link from "next/link";
-import { useAppSelector } from "@/src/store/store";
 import {
   useDeleteBlogMutation,
   useGetAllBlogsQuery,
 } from "@/src/store/api/blogApi";
+import { useAppSelector } from "@/src/store/store";
+import { Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 interface BlogManagerListProps {
+  /** Route prefix for "new" / "edit" links, e.g. "/content/blogs". */
   basePath: string;
+  /** True for Admin, who can delete anyone's post (the backend enforces
+   * this regardless — this only affects whether the button is shown). */
   canDeleteAny?: boolean;
 }
 
@@ -31,18 +37,24 @@ export function BlogManagerList({
   const user = useAppSelector((state) => state.auth.user);
   const { data: posts, isLoading } = useGetAllBlogsQuery();
   const [deleteBlog] = useDeleteBlogMutation();
+  const [pendingDelete, setPendingDelete] = useState<{
+    documentId: string;
+    title: string;
+  } | null>(null);
 
-  const handleDelete = async (documentId: string) => {
-    if (!confirm("Delete this post?")) return;
-    await deleteBlog(documentId).unwrap();
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    await deleteBlog(pendingDelete.documentId).unwrap();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Blog Posts</h1>
-          <p className="text-slate-500 mt-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Blog Posts
+          </h1>
+          <p className="mt-2 text-muted-foreground">
             Write, publish, and manage articles for the platform.
           </p>
         </div>
@@ -69,13 +81,18 @@ export function BlogManagerList({
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-slate-500">
-                      Loading posts...
+                    <TableCell colSpan={4} className="py-8 text-center">
+                      <div className="flex justify-center">
+                        <Loader size="sm" label="Loading posts..." />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : !posts || posts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-slate-500">
+                    <TableCell
+                      colSpan={4}
+                      className="py-8 text-center text-muted-foreground"
+                    >
                       No posts yet.
                     </TableCell>
                   </TableRow>
@@ -85,8 +102,12 @@ export function BlogManagerList({
                     const canDelete = canDeleteAny || isOwn;
                     return (
                       <TableRow key={post.id}>
-                        <TableCell className="font-medium">{post.title}</TableCell>
-                        <TableCell>{post.author?.username || "Unknown"}</TableCell>
+                        <TableCell className="font-medium">
+                          {post.title}
+                        </TableCell>
+                        <TableCell>
+                          {post.author?.username || "Unknown"}
+                        </TableCell>
                         <TableCell>
                           <Badge
                             variant={
@@ -110,7 +131,12 @@ export function BlogManagerList({
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => handleDelete(post.documentId)}
+                              onClick={() =>
+                                setPendingDelete({
+                                  documentId: post.documentId,
+                                  title: post.title,
+                                })
+                              }
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -125,6 +151,16 @@ export function BlogManagerList({
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title={pendingDelete ? `Delete "${pendingDelete.title}"?` : ""}
+        description="This permanently removes the post. This can't be undone."
+        confirmLabel="Delete post"
+        tone="destructive"
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

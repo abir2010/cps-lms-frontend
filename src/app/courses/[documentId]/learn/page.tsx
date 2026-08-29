@@ -24,7 +24,7 @@ function getEmbedUrl(url: string) {
   if (match && match[2].length === 11) {
     return `https://www.youtube.com/embed/${match[2]}`;
   }
-  return url; // Not a YouTube link — use it as-is.
+  return url;
 }
 
 export default function LearningInterface() {
@@ -81,7 +81,7 @@ export default function LearningInterface() {
 
   if (courseLoading || enrollmentLoading) {
     return (
-      <div className="p-8 text-center text-slate-500">
+      <div className="p-8 text-center text-muted-foreground">
         Loading curriculum...
       </div>
     );
@@ -89,7 +89,7 @@ export default function LearningInterface() {
 
   if (!course || !enrollment) {
     return (
-      <div className="p-8 text-center text-red-500">
+      <div className="p-8 text-center text-destructive">
         Course or enrollment not found.
       </div>
     );
@@ -98,7 +98,7 @@ export default function LearningInterface() {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Top Navigation & Progress */}
-      <header className="border-b bg-white p-4 flex items-center justify-between shrink-0">
+      <header className="border-b bg-card p-4 flex items-center justify-between shrink-0">
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
@@ -132,7 +132,7 @@ export default function LearningInterface() {
       {/* Main Learning Area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: Content Viewer */}
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-50">
+        <main className="flex-1 overflow-y-auto p-6 bg-muted/40">
           {activeLesson ? (
             <div className="max-w-4xl mx-auto space-y-6">
               {activeLesson.video_url && (
@@ -165,7 +165,7 @@ export default function LearningInterface() {
                 >
                   {isLessonCompleted(activeLesson.documentId) ? (
                     <>
-                      <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />{" "}
+                      <CheckCircle2 className="mr-2 h-4 w-4 text-success" />{" "}
                       Completed
                     </>
                   ) : (
@@ -176,22 +176,22 @@ export default function LearningInterface() {
 
               {activeLesson.text_content && (
                 <Card>
-                  <CardContent className="p-6 prose max-w-none whitespace-pre-wrap text-slate-800">
+                  <CardContent className="p-6 prose max-w-none whitespace-pre-wrap text-foreground">
                     {activeLesson.text_content}
                   </CardContent>
                 </Card>
               )}
             </div>
           ) : (
-            <div className="text-center text-slate-500 mt-20">
+            <div className="text-center text-muted-foreground mt-20">
               No lessons available in this course yet.
             </div>
           )}
         </main>
 
         {/* Right Panel: Curriculum Sidebar */}
-        <aside className="w-80 border-l bg-white overflow-y-auto shrink-0">
-          <div className="p-4 font-semibold border-b bg-slate-50">
+        <aside className="w-80 border-l bg-card overflow-y-auto shrink-0">
+          <div className="p-4 font-semibold border-b bg-muted/40">
             Course Content
           </div>
           <div className="flex flex-col">
@@ -203,17 +203,17 @@ export default function LearningInterface() {
                 <button
                   key={lesson.documentId}
                   onClick={() => setActiveLessonId(lesson.documentId)}
-                  className={`p-4 text-left border-b hover:bg-slate-50 transition-colors flex items-start space-x-3 ${
+                  className={`p-4 text-left border-b hover:bg-muted/40 transition-colors flex items-start space-x-3 ${
                     isActive
-                      ? "bg-indigo-50 border-l-4 border-l-indigo-600"
+                      ? "bg-primary/10 border-l-4 border-l-primary"
                       : "border-l-4 border-l-transparent"
                   }`}
                 >
                   <div className="mt-0.5">
                     {isDone ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <CheckCircle2 className="h-5 w-5 text-success" />
                     ) : (
-                      <div className="h-5 w-5 rounded-full border-2 border-slate-300 flex items-center justify-center text-xs text-slate-500">
+                      <div className="h-5 w-5 rounded-full border-2 border-border flex items-center justify-center text-xs text-muted-foreground">
                         {index + 1}
                       </div>
                     )}
@@ -221,8 +221,8 @@ export default function LearningInterface() {
                   <div
                     className={`text-sm ${
                       isActive
-                        ? "font-semibold text-indigo-900"
-                        : "font-medium text-slate-700"
+                        ? "font-semibold text-primary"
+                        : "font-medium text-foreground"
                     }`}
                   >
                     {lesson.title}

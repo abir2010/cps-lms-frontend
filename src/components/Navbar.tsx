@@ -1,9 +1,11 @@
 "use client";
 
 import Cookies from "js-cookie";
+import { GraduationCap, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { getHomeForRole } from "../lib/roleRoutes";
 import { logout } from "../store/authSlice";
@@ -24,32 +26,45 @@ export default function Navbar() {
   if (!isAuthenticated || !user) return null;
 
   return (
-    <nav className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200">
-      <div className="text-xl font-bold text-indigo-600">
+    <nav className="flex items-center justify-between border-b border-border bg-card px-6 py-3.5 sm:px-8">
+      <Link
+        href={getHomeForRole(user.role)}
+        className="flex items-center gap-2 text-lg font-bold text-foreground"
+      >
         {/* Not a hardcoded /dashboard — that's the Student home, and the
             proxy would otherwise just bounce every other role right back
             out of it. */}
-        <Link href={getHomeForRole(user.role)}>Platform Name</Link>
-      </div>
+        <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <GraduationCap className="size-4.5" strokeWidth={2.25} />
+        </span>
+        Platform Name
+      </Link>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <Link
           href="/blog"
-          className="text-sm text-slate-500 hover:text-slate-900"
+          className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline"
         >
           Blog
         </Link>
 
-        <div className="text-sm text-slate-500">
-          Signed in as{" "}
-          <span className="font-semibold text-slate-900">{user.username}</span>
-          <span className="ml-1 px-2 py-0.5 bg-slate-100 rounded-full text-xs">
+        <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
+          <span className="font-semibold text-foreground">{user.username}</span>
+          <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
             {user.role}
           </span>
         </div>
 
-        <Button variant="outline" size="sm" onClick={handleLogout}>
-          Log Out
+        <ThemeToggle />
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleLogout}
+          className="gap-1.5"
+        >
+          <LogOut className="size-3.5" />
+          <span className="hidden sm:inline">Log Out</span>
         </Button>
       </div>
     </nav>
