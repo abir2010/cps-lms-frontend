@@ -32,6 +32,11 @@ const authSlice = createSlice({
       state.jwt = action.payload.jwt;
       state.isAuthenticated = true;
     },
+    rehydrate: (state, action: PayloadAction<{ user: User; jwt: string }>) => {
+      state.user = action.payload.user;
+      state.jwt = action.payload.jwt;
+      state.isAuthenticated = true;
+    },
     logout: (state) => {
       state.user = null;
       state.jwt = null;
@@ -40,5 +45,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, rehydrate, logout } = authSlice.actions;
 export default authSlice.reducer;

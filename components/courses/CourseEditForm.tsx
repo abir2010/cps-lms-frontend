@@ -2,22 +2,28 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useAppSelector } from "@/src/store/store";
 import {
   useDeleteCourseMutation,
   useGetCourseQuery,
   useUpdateCourseMutation,
 } from "@/src/store/api/coursesApi";
-import { useAppSelector } from "@/src/store/store";
-import { Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { QuizManager } from "../quiz/QuizManager";
 import { CourseStudentsPanel } from "./CourseStudentsPanel";
 import { LessonManager } from "./LessonManager";
+import { QuizManager } from "../quiz/QuizManager";
+import { QuizResultsPanel } from "../quiz/QuizResultsPanel";
 
 interface CourseEditFormProps {
   documentId: string;
@@ -88,8 +94,7 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
 
       {!isOwner && (
         <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
-          This course belongs to another instructor (
-          {course.instructor?.username}
+          This course belongs to another instructor ({course.instructor?.username}
           ).
         </p>
       )}
@@ -118,9 +123,7 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
           </div>
 
           {courseError && (
-            <p className="text-sm font-medium text-destructive">
-              {courseError}
-            </p>
+            <p className="text-sm font-medium text-destructive">{courseError}</p>
           )}
 
           <div className="flex justify-between pt-4 border-t">
@@ -143,6 +146,8 @@ export function CourseEditForm({ documentId, listPath }: CourseEditFormProps) {
       <QuizManager courseId={course.id} courseDocumentId={course.documentId} />
 
       <CourseStudentsPanel courseDocumentId={course.documentId} />
+
+      <QuizResultsPanel courseDocumentId={course.documentId} />
     </div>
   );
 }

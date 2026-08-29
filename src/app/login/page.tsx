@@ -18,8 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { loginUser } from "../../lib/api/auth";
 import { getHomeForRole } from "../../lib/roleRoutes";
+import { useLoginMutation } from "../../store/api/authApi";
 import { setCredentials } from "../../store/authSlice";
 import { useAppDispatch } from "../../store/store";
 
@@ -34,13 +34,14 @@ type LoginSchema = z.infer<typeof formSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const [login, { isLoading }] = useLoginMutation();
 
   // React Hook Form
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginSchema>({
     resolver: zodResolver(formSchema),
   });
@@ -48,7 +49,7 @@ export default function LoginPage() {
   // Form Submission
   const onSubmit = async (values: LoginSchema) => {
     try {
-      const data = await loginUser(values.identifier, values.password);
+      const data = await login(values).unwrap();
 
       dispatch(setCredentials({ user: data.user, jwt: data.jwt }));
       Cookies.set("jwt", data.jwt, { expires: 7 });
@@ -105,8 +106,8 @@ export default function LoginPage() {
               </p>
             )}
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign In"}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </CardContent>

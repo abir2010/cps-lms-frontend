@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { registerUser } from "../../lib/api/auth";
+import { useRegisterMutation } from "../../store/api/authApi";
 import { setCredentials } from "../../store/authSlice";
 import { useAppDispatch } from "../../store/store";
 
@@ -33,23 +33,20 @@ type RegisterSchema = z.infer<typeof formSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const [registerUser, { isLoading }] = useRegisterMutation();
 
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterSchema>({
     resolver: zodResolver(formSchema),
   });
 
   const onSubmit = async (values: RegisterSchema) => {
     try {
-      const data = await registerUser(
-        values.username,
-        values.email,
-        values.password,
-      );
+      const data = await registerUser(values).unwrap();
 
       // Update global state and Edge routing cookies
       dispatch(setCredentials({ user: data.user, jwt: data.jwt }));
@@ -61,7 +58,9 @@ export default function RegisterPage() {
     } catch (error: any) {
       console.error(error);
       setError("root", {
-        message: error.message || "Registration failed. Please try again.",
+        message:
+          error?.data?.error?.message ||
+          "Registration failed. Please try again.",
       });
     }
   };
@@ -126,12 +125,8 @@ export default function RegisterPage() {
               </p>
             )}
 
-            <Button
-              type="submit"
-              className="w-full mt-4"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Creating account..." : "Sign Up"}
+            <Button type="submit" className="w-full mt-4" disabled={isLoading}>
+              {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
         </CardContent>
