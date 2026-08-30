@@ -14,7 +14,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "LMS Platform",
+  title: "Explora Learn",
   description: "Learning Management System",
 };
 

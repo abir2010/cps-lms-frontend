@@ -31,13 +31,10 @@ export default function Navbar() {
         href={getHomeForRole(user.role)}
         className="flex items-center gap-2 text-lg font-bold text-foreground"
       >
-        {/* Not a hardcoded /dashboard — that's the Student home, and the
-            proxy would otherwise just bounce every other role right back
-            out of it. */}
         <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <GraduationCap className="size-4.5" strokeWidth={2.25} />
         </span>
-        Platform Name
+        Explora Learn
       </Link>
 
       <div className="flex items-center gap-3 sm:gap-4">

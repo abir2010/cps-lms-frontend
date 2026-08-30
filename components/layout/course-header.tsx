@@ -19,7 +19,7 @@ export function CourseHeader() {
         <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <GraduationCap className="size-4.5" strokeWidth={2.25} />
         </span>
-        Platform Name
+        Explora Learn
       </Link>
 
       <div className="flex items-center gap-3">

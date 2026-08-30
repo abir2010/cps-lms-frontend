@@ -37,6 +37,7 @@ export default function CourseDetailsPage() {
         err?.data?.error?.message ??
           "Could not complete enrollment. Please check your permissions.",
       );
+      router.push("/login");
     }
   };
 

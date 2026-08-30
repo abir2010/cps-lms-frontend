@@ -71,93 +71,111 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="absolute top-5 right-6">
-        <ThemeToggle />
+    <div className="relative bg-background">
+      <nav className="flex items-center justify-between border-b border-border bg-card px-6 py-3.5 sm:px-8">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-bold text-foreground"
+        >
+          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <GraduationCap className="size-4.5" strokeWidth={2.25} />
+          </span>
+          Explora Learn
+        </Link>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          <ThemeToggle />
+        </div>
+      </nav>
+      <div className="relative flex min-h-screen items-center justify-center">
+        <div
+          className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-125 w-125 -translate-x-1/2 rounded-full opacity-20 blur-3xl"
+          style={{
+            background:
+              "radial-gradient(circle, var(--primary), transparent 65%)",
+          }}
+        />
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-sm"
+        >
+          <Card>
+            <CardHeader className="items-center text-center">
+              <div className="w-full flex items-center justify-center">
+                <div className="mb-2 flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                  <GraduationCap className="size-6" strokeWidth={2} />
+                </div>
+              </div>
+              <CardTitle className="text-2xl">Explora Learn</CardTitle>
+              <p className="text-sm text-muted-foreground"></p>
+              Sign up for an account to start learning today!
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    placeholder="johndoe"
+                    {...register("username")}
+                  />
+                  <FieldError message={errors.username?.message} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="student@example.com"
+                    {...register("email")}
+                  />
+                  <FieldError message={errors.email?.message} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    {...register("password")}
+                  />
+                  <FieldError message={errors.password?.message} />
+                </div>
+
+                <FieldError message={errors.root?.message} />
+
+                <Button
+                  type="submit"
+                  className="mt-4 w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader size="sm" label="Creating account..." />
+                  ) : (
+                    "Sign Up"
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+            <CardFooter className="justify-center">
+              <p className="text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="font-medium text-primary hover:underline"
+                >
+                  Log in
+                </Link>
+              </p>
+            </CardFooter>
+          </Card>
+        </motion.div>
       </div>
-      <div
-        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-125 w-125 -translate-x-1/2 rounded-full opacity-20 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, var(--primary), transparent 65%)",
-        }}
-      />
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-sm"
-      >
-        <Card>
-          <CardHeader className="items-center text-center">
-            <div className="mb-2 flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <GraduationCap className="size-6" strokeWidth={2} />
-            </div>
-            <CardTitle className="text-2xl">Create an Account</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  placeholder="johndoe"
-                  {...register("username")}
-                />
-                <FieldError message={errors.username?.message} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="student@example.com"
-                  {...register("email")}
-                />
-                <FieldError message={errors.email?.message} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register("password")}
-                />
-                <FieldError message={errors.password?.message} />
-              </div>
-
-              <FieldError message={errors.root?.message} />
-
-              <Button
-                type="submit"
-                className="mt-4 w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader size="sm" label="Creating account..." />
-                ) : (
-                  "Sign Up"
-                )}
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="justify-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link
-                href="/login"
-                className="font-medium text-primary hover:underline"
-              >
-                Log in
-              </Link>
-            </p>
-          </CardFooter>
-        </Card>
-      </motion.div>
     </div>
   );
 }

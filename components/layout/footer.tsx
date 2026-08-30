@@ -59,7 +59,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-border pt-6 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Platform Name. All rights reserved.
+          © {new Date().getFullYear()} Explora Learn. All rights reserved.
         </div>
       </div>
     </footer>

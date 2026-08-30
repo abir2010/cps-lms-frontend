@@ -50,7 +50,7 @@ export default function SiteConfigurationPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="platformName">Platform Name</Label>
+            <Label htmlFor="platformName">Explora Learn</Label>
             <Input
               id="platformName"
               value={config.platformName}
